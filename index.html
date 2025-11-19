@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Lot Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="header">
+        <div style="display:flex;align-items:center;gap:10px;height:55px;font-family:Poppins";">
+            <div
+                style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#60a5fa);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">
+                <i class="fas fa-motorcycle"></i>
+            </div>
+            <div>
+                <h1 style="margin:0;font-size:1.8rem;color:var(--dark-btn)">AI Parking Lot Manager</h1>
+                <div style="font-size:16px;color:#000">Manage parking, bookings and AI entry</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- LEFT SIDE -->
+        <div class="left-panel">
+            <h2><i class="fas fa-th"></i> LOT OVERVIEW</h2>
+            <div class="lot-grid" id="lotGrid"></div>
+            <div class="stats-grid" style="margin-top: 20px;">
+                <div class="stat-item"style="border:black 1px solid;">
+                    <div class="label"><i class="fas fa-check-circle"></i> Occupied</div>
+                    <div class="value" id="occupiedCount">0</div>
+                </div>
+                <div class="stat-item"style="border:black 1px solid;">
+                    <div class="label"><i class="fas fa-check-circle"></i> Available</div>
+                    <div class="value" id="availableCount">72</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="right-panel">
+
+            <div class="status-row">
+                <div class="status-box">
+                    <h3><i class="fas fa-car"></i></h3>
+                    <div class="value" id="totalSpaces">72</div>
+                    <div class="label">Total Spaces</div>
+                </div>
+                <div class="status-box">
+                    <h3><i class="fas fa-percent"></i></h3>
+                    <div class="value" id="occupancyRate">0%</div>
+                    <div class="label">Occupancy Rate</div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab(0, this)"><i class="fas fa-sign-in-alt"></i> Check In</div>
+                <div class="tab" onclick="switchTab(1, this)"><i class="fas fa-sign-out-alt"></i> Check Out</div>
+                <div class="tab" onclick="switchTab(3, this)"><i class="fas fa-bookmark"></i> Reserve</div>
+                <div class="tab" onclick="switchTab(2, this)"><i class="fas fa-chart-bar"></i> History</div>
+            </div>
+
+            <div id="tab-content-0" class="tab-content">
+                <div class="box">
+                    <h3><i class="fas fa-car"></i> CHECK IN VEHICLE</h3>
+                    <div id="alert" class="alert" style="display:none;"></div>
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag"></i> Vehicle Number</label>
+                        <input type="text" id="vehicleNumber" placeholder="e.g., ABC-1234">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-list"></i> Vehicle Type</label>
+                        <select id="vehicleType">
+                            <option value="Car">Car</option>
+                            <option value="Bike">Bike</option>
+                            <option value="Van">Van</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Parking Duration (Hours)</label>
+                        <input type="number" id="bookingDuration" placeholder="e.g., 2" min="1" max="24" value="2">
+                    </div>
+
+                    <button class="white-btn" onclick="checkInVehicle()"><i class="fas fa-plus-circle"></i> CHECK IN
+                        VEHICLE</button>
+                    <!-- <button class="outline-btn" onclick="uploadImage()"><i class="fas fa-image"></i> Recognize Plate
+                        from Image</button> -->
+                </div>
+            </div>
+
+            <div id="tab-content-1" class="tab-content" style="display:none;">
+                <div class="box">
+                    <h3><i class="fas fa-sign-out-alt"></i> CHECK OUT VEHICLE</h3>
+                    <div id="alert-checkout" class="alert" style="display:none;"></div>
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag"></i> Vehicle Number (to checkout)</label>
+                        <input type="text" id="checkoutNumber" placeholder="e.g., ABC-1234">
+                    </div>
+                    <button class="primary-btn" onclick="checkOutVehicle()"
+                        style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);"><i
+                            class="fas fa-check-circle"></i> CHECK OUT</button>
+                </div>
+            </div>
+
+            <div id="tab-content-3" class="tab-content" style="display:none;">
+                <div class="box">
+                    <h3><i class="fas fa-bookmark"></i> RESERVE SLOT</h3>
+                    <div id="alert-reserve" class="alert" style="display:none;"></div>
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag"></i> Slot Number (1-72)</label>
+                        <input type="number" id="reserveSlotNumber" placeholder="e.g., 5" min="1" max="72">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Your Name</label>
+                        <input type="text" id="reserveName" placeholder="e.g., John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Phone Number</label>
+                        <input type="tel" id="reservePhone" placeholder="e.g., +1-234-567-8900">
+                    </div>
+                    <button class="primary-btn" onclick="reserveSlot()"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><i
+                            class="fas fa-bookmark"></i> RESERVE SLOT</button>
+                </div>
+                <div class="box">
+                    <h3><i class="fas fa-list"></i> MY RESERVATIONS</h3>
+                    <div id="reservationsList">
+                        <p style="text-align: center; color: #999;"><i class="fas fa-inbox"></i> No active reservations
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-2" class="tab-content" style="display:none;">
+                <div class="box">
+                    <h3><i class="fas fa-history"></i> PARKING HISTORY</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> Slot</th>
+                                <th><i class="fas fa-car"></i> Vehicle</th>
+                                <th><i class="fas fa-list"></i> Type</th>
+                                <th><i class="fas fa-clock"></i> Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3><i class="fas fa-list"></i> CURRENTLY PARKED VEHICLES</h3>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <input id="parkedSearch" class="search-input" placeholder="Search by license plate..." />
+                </div>
+                <div id="parkedList">
+                    <p style="text-align: center; color: #999;"><i class="fas fa-inbox"></i> No vehicles parked</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Check-In Confirmation Modal -->
+    <div id="checkinModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-check-circle"></i> Confirm Check-In</h2>
+                <button class="close-btn" onclick="closeCheckinModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #666; margin-bottom: 20px;">Please confirm the vehicle details:</p>
+                <div class="confirmation-details">
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-hashtag"></i> Vehicle Number:</span>
+                        <span class="detail-value" id="confirmVehicleNumber">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-list"></i> Vehicle Type:</span>
+                        <span class="detail-value" id="confirmVehicleType">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-parking"></i> Slot Number:</span>
+                        <span class="detail-value" id="confirmSlotNumber">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-clock"></i> Check-In Time:</span>
+                        <span class="detail-value" id="confirmCheckInTime">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-hourglass-end"></i> Booking Duration:</span>
+                        <span class="detail-value" id="confirmBookingDuration">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-door-open"></i> Expiry Time:</span>
+                        <span class="detail-value" id="confirmExpiryTime">-</span>
+                    </div>
+                </div>
+                <p style="color: #999; font-size: 13px; text-align: center; margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i> Are you sure you want to proceed?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-confirm no" onclick="closeCheckinModal()"><i class="fas fa-times"></i>
+                    Cancel</button>
+                <button class="btn-confirm yes" onclick="confirmCheckin()"><i class="fas fa-check"></i> Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Check-Out Confirmation Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-sign-out-alt"></i> Confirm Check-Out</h2>
+                <button class="close-btn" onclick="closeCheckoutModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #666; margin-bottom: 20px;">Please confirm the vehicle check-out:</p>
+                <div class="confirmation-details">
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-hashtag"></i> Vehicle Number:</span>
+                        <span class="detail-value" id="confirmCheckoutVehicle">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-list"></i> Vehicle Type:</span>
+                        <span class="detail-value" id="confirmCheckoutType">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-parking"></i> Parked at Slot:</span>
+                        <span class="detail-value" id="confirmCheckoutSlot">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-clock"></i> Duration:</span>
+                        <span class="detail-value" id="confirmCheckoutDuration">-</span>
+                    </div>
+                </div>
+                <p style="color: #999; font-size: 13px; text-align: center; margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i> Confirm to complete vehicle exit
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-confirm no" onclick="closeCheckoutModal()"><i class="fas fa-times"></i>
+                    Cancel</button>
+                <button class="btn-confirm yes" onclick="confirmCheckout()"><i class="fas fa-check"></i> Confirm
+                    Exit</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
